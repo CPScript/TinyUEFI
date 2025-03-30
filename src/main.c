@@ -1,5 +1,9 @@
 #include "uefi_types.h"
 #include "uefi_helpers.h"
+#include "efi_file_protocol.h"
+#include "efi_network_protocol.h"
+#include "efi_gop_protocol.h"
+#include "efi_protocol_discovery.h"
 
 EFI_SYSTEM_TABLE *ST = NULL;
 
