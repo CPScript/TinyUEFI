@@ -1,4 +1,4 @@
-# TinyUEFI Makefile
+# GNUMakefile
 
 TARGET = x86_64-w64-mingw32
 CC = $(TARGET)-gcc
@@ -43,7 +43,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 # Run in QEMU with OVMF
 run: all
-	qemu-system-x86_64 -bios OVMF.fd -net none -drive file=fat:rw:$(BUILD_DIR),format=raw
+	qemu-system-x86_64 -bios OVMF.fd -net nic -net user -drive file=fat:rw:$(BUILD_DIR),format=raw
 
 # Clean build artifacts
 clean:
