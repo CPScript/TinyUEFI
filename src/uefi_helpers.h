@@ -146,4 +146,4 @@ static inline void MemCpy(void *dest, const void *src, uint64_t size) {
     }
 }
 
-#endif // TINYUEFI_HELPERS_H
+#endif
