@@ -161,5 +161,4 @@ TinyUEFI/
 ```
 
 ## License
-
-Open source - see source files for license details.
+see source files for license details.
