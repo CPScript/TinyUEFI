@@ -2,6 +2,15 @@
 #define TINYUEFI_TYPES_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+// Define char16_t if not available (for older C standards)
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#include <uchar.h>  // C11 and later
+#else
+typedef uint16_t char16_t;
+#endif
 
 // Basic UEFI types
 typedef uint64_t EFI_STATUS;
@@ -10,6 +19,43 @@ typedef void *EFI_EVENT;
 typedef uint64_t EFI_PHYSICAL_ADDRESS;
 typedef uint64_t EFI_VIRTUAL_ADDRESS;
 typedef void *EFI_DEVICE_PATH_PROTOCOL;
+
+// GUID structure
+typedef struct {
+    uint32_t Data1;
+    uint16_t Data2;
+    uint16_t Data3;
+    uint8_t  Data4[8];
+} EFI_GUID;
+
+// Time structure
+typedef struct {
+    uint16_t Year;
+    uint8_t  Month;
+    uint8_t  Day;
+    uint8_t  Hour;
+    uint8_t  Minute;
+    uint8_t  Second;
+    uint8_t  Pad1;
+    uint32_t Nanosecond;
+    int16_t  TimeZone;
+    uint8_t  Daylight;
+    uint8_t  Pad2;
+} EFI_TIME;
+
+// IP address structures
+typedef struct {
+    uint8_t Addr[4];
+} EFI_IPv4_ADDRESS;
+
+typedef struct {
+    uint8_t Addr[16];
+} EFI_IPv6_ADDRESS;
+
+typedef union {
+    EFI_IPv4_ADDRESS v4;
+    EFI_IPv6_ADDRESS v6;
+} EFI_IP_ADDRESS;
 
 // Memory types
 typedef enum {
@@ -30,6 +76,13 @@ typedef enum {
     EfiPersistentMemory,
     EfiMaxMemoryType
 } EFI_MEMORY_TYPE;
+
+// Search types for LocateHandle
+typedef enum {
+    AllHandles,
+    ByRegisterNotify,
+    ByProtocol
+} EFI_LOCATE_SEARCH_TYPE;
 
 // Table header
 typedef struct {
@@ -119,6 +172,45 @@ typedef EFI_STATUS (*EFI_WAIT_FOR_EVENT)(
     uint64_t *Index
 );
 
+// Protocol handler functions
+typedef EFI_STATUS (*EFI_LOCATE_PROTOCOL)(
+    EFI_GUID *Protocol,
+    void *Registration,
+    void **Interface
+);
+
+typedef EFI_STATUS (*EFI_LOCATE_HANDLE)(
+    EFI_LOCATE_SEARCH_TYPE SearchType,
+    EFI_GUID *Protocol,
+    void *SearchKey,
+    uint64_t *BufferSize,
+    EFI_HANDLE *Buffer
+);
+
+typedef EFI_STATUS (*EFI_OPEN_PROTOCOL)(
+    EFI_HANDLE Handle,
+    EFI_GUID *Protocol,
+    void **Interface,
+    EFI_HANDLE AgentHandle,
+    EFI_HANDLE ControllerHandle,
+    uint32_t Attributes
+);
+
+typedef EFI_STATUS (*EFI_CLOSE_PROTOCOL)(
+    EFI_HANDLE Handle,
+    EFI_GUID *Protocol,
+    EFI_HANDLE AgentHandle,
+    EFI_HANDLE ControllerHandle
+);
+
+// Protocol open attributes
+#define EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL  0x00000001
+#define EFI_OPEN_PROTOCOL_GET_PROTOCOL        0x00000002
+#define EFI_OPEN_PROTOCOL_TEST_PROTOCOL       0x00000004
+#define EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER 0x00000008
+#define EFI_OPEN_PROTOCOL_BY_DRIVER           0x00000010
+#define EFI_OPEN_PROTOCOL_EXCLUSIVE           0x00000020
+
 // Minimal boot services (only what we need)
 struct _EFI_BOOT_SERVICES {
     EFI_TABLE_HEADER Hdr;
@@ -207,6 +299,7 @@ struct _EFI_BOOT_SERVICES {
 #define EFI_MEDIA_CHANGED               0x800000000000000D
 #define EFI_NOT_FOUND                   0x800000000000000E
 #define EFI_ACCESS_DENIED               0x800000000000000F
+#define EFI_TIMEOUT                     0x8000000000000010
 
 // Text Output defines
 #define EFI_BLACK                       0x00
@@ -237,4 +330,4 @@ struct _EFI_BOOT_SERVICES {
 
 #define EFI_ERROR(Status)               ((int64_t)(Status) < 0)
 
-#endif // TINYUEFI_TYPES_H
+#endif
